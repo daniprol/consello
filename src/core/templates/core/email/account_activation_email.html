@@ -1,0 +1,17 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% trans "Verify your email" %}</title>
+    </head>
+    <body>
+        <h1>{% trans "Welcome to Consello!" %}</h1>
+        <p>
+            {% trans "Please click on the link below to confirm your
+            registration:" %}
+        </p>
+        <p>
+            <a href="http://{{ domain }}{% url 'core:activate' uidb64=uid token=token %}">{% trans "Confirm your email" %}</a>
+        </p>
+    </body>
+</html>

@@ -1,15 +1,17 @@
 [project]
 name = "consello"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered document assistant"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=5.1.5",
+    "django>=5.0",
+    "social-auth-app-django>=5.4.0",
+    "python-jose>=3.3.0",
+    "cryptography>=41.0.0",
+    "django-allauth>=0.57.0",
+    "django-environ>=0.11.2",
 ]
 
 [dependency-groups]
-dev = [
-    "pytest>=8.3.4",
-    "ruff>=0.9.4",
-]
+dev = ["djlint>=1.36.4", "pytest>=8.3.4", "ruff>=0.9.4"]

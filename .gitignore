@@ -10,3 +10,6 @@ wheels/
 .venv
 
 .cursorrules
+
+*.sqlite3
+locale

@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+{% load i18n %}
+{% block title %}
+    {% trans "Welcome to Consello"
+    %}
+{% endblock %}
+{% block content %}
+    <div class="relative bg-white dark:bg-gray-800 overflow-hidden">
+        <!-- Hero section with Celtic-inspired design -->
+        <div class="relative pt-6 pb-16 sm:pb-24">
+            <div class="mt-16 mx-auto max-w-7xl px-4 sm:mt-24 sm:px-6">
+                <div class="text-center">
+                    <!-- Celtic knot logo -->
+                    <div class="flex justify-center mb-8">
+                        <svg class="h-24 w-24 text-{{ theme.primary }}-600 dark:text-{{ theme.primary }}-400"
+                             viewBox="0 0 100 100">
+                            <!-- Celtic triskelion symbol -->
+                            <path d="M50 10 C60 10 70 20 70 30 C70 40 60 50 50 50 C40 50 30 40 30 30 C30 20 40 10 50 10" fill="currentColor" />
+                            <path d="M70 50 C80 50 90 60 90 70 C90 80 80 90 70 90 C60 90 50 80 50 70 C50 60 60 50 70 50" fill="currentColor" />
+                            <path d="M30 50 C20 50 10 60 10 70 C10 80 20 90 30 90 C40 90 50 80 50 70 C50 60 40 50 30 50" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+                        <span class="block">{% trans "Your AI-Powered" %}</span>
+                        <span class="block text-{{ theme.primary }}-600 dark:text-{{ theme.primary }}-400">{% trans "Tourism Assistant" %}</span>
+                    </h1>
+                    <p class="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-400 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                        {% trans "Consello uses advanced AI to help you discover the rich culture, history, and beauty of Galicia. Get instant answers about places, traditions, and local experiences." %}
+                    </p>
+                    <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+                        <div class="rounded-md shadow">
+                            <a href="{% url 'core:register' %}"
+                               class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 md:py-4 md:text-lg md:px-10">
+                                {% trans "Get Started with Consello" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Feature section with Galician themes -->
+        <div class="py-12 bg-gray-50 dark:bg-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:text-center">
+                    <h2 class="text-base text-{{ theme.primary }}-600 font-semibold tracking-wide uppercase">
+                        {% trans "Discover Galicia" %}
+                    </h2>
+                    <div class="mt-10">
+                        <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                            <!-- Cultural Heritage -->
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-{{ theme.primary }}-500 text-white">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900 dark:text-white">{% trans "Cultural Heritage" %}</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500 dark:text-gray-400">
+                                    {% trans "Explore Galician traditions, festivals, and historical landmarks" %}
+                                </dd>
+                            </div>
+                            <!-- Local Gastronomy -->
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-{{ theme.primary }}-500 text-white">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900 dark:text-white">{% trans "Local Gastronomy" %}</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500 dark:text-gray-400">
+                                    {% trans "Discover the best places for authentic Galician cuisine" %}
+                                </dd>
+                            </div>
+                            <!-- Natural Wonders -->
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-{{ theme.primary }}-500 text-white">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900 dark:text-white">{% trans "Natural Wonders" %}</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500 dark:text-gray-400">
+                                    {% trans "Find the most beautiful beaches, mountains, and natural parks" %}
+                                </dd>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

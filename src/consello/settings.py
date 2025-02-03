@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "social_django",
+    "core.apps.CoreConfig",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +52,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "core.middleware.AutoLoginMiddleware",  # Add this for development auto-login
 ]
 
 ROOT_URLCONF = "consello.urls"
@@ -62,6 +69,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.i18n",
+                "core.context_processors.theme",
             ],
         },
     },
@@ -103,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es"  # Spanish as default
 
 TIME_ZONE = "UTC"
 
@@ -121,3 +130,72 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Theme settings
+AVAILABLE_THEMES = ["default", "forest", "ocean"]
+DEFAULT_THEME = "default"
+
+# Internationalization
+LANGUAGES = [
+    ("es", _("Spanish")),
+    ("en", _("English")),
+    ("gl", _("Galician")),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
+
+# Authentication settings
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "social_core.backends.google.GoogleOAuth2",
+    "social_core.backends.azuread.AzureADOAuth2",
+]
+
+# Social auth settings
+SOCIAL_AUTH_ENABLED = True  # Set to False to disable social auth
+SOCIAL_AUTH_PROVIDERS = {
+    "google": True,
+    "azure": True,
+}
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("GOOGLE_OAUTH2_KEY", "")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("GOOGLE_OAUTH2_SECRET", "")
+
+SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = os.environ.get("AZURE_OAUTH2_KEY", "")
+SOCIAL_AUTH_AZUREAD_OAUTH2_SECRET = os.environ.get("AZURE_OAUTH2_SECRET", "")
+
+# Email verification settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+
+DEFAULT_FROM_EMAIL = "noreply@consello.com"
+
+# Login/Logout URLs
+LOGIN_URL = "core:login"
+LOGIN_REDIRECT_URL = "core:landing"
+LOGOUT_REDIRECT_URL = "core:landing"
+
+# Social Auth Pipeline
+SOCIAL_AUTH_PIPELINE = (
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    "social_core.pipeline.user.get_username",
+    "social_core.pipeline.social_auth.associate_by_email",  # Enable matching by email
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "social_core.pipeline.user.user_details",
+)
+
+# Social Auth Settings
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
+SOCIAL_AUTH_AZUREAD_OAUTH2_USE_UNIQUE_USER_ID = True

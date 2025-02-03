@@ -1,0 +1,241 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}"
+      class="h-full"
+      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true', mobileMenu: false }"
+      :class="{ 'dark': darkMode }">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Consello -
+            {% block title %}{% endblock %}
+        </title>
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        animation: {
+                            "bounce-slow": "bounce 3s infinite",
+                            "pulse-slow": "pulse 3s infinite",
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-gray-50 dark:bg-gray-900 h-full">
+        <!-- Navigation -->
+        <nav class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <a href="{% url 'core:landing' %}" class="flex items-center space-x-2">
+                                <!-- Fun animated logo -->
+                                <svg class="h-8 w-8 text-{{ theme.primary }}-600 dark:text-{{ theme.primary }}-400 animate-bounce-slow"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                <span class="text-2xl font-bold text-{{ theme.primary }}-600 dark:text-{{ theme.primary }}-400">Consello</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Mobile menu button -->
+                    <div class="flex items-center lg:hidden">
+                        <button @click="mobileMenu = !mobileMenu"
+                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="h-6 w-6"
+                                 :class="{'hidden': mobileMenu, 'block': !mobileMenu }"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            <svg class="h-6 w-6"
+                                 :class="{'block': mobileMenu, 'hidden': !mobileMenu }"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Desktop menu -->
+                    <div class="hidden lg:flex lg:items-center lg:space-x-4">
+                        <!-- Theme Selector -->
+                        {% if available_themes|length > 1 %}
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open"
+                                        class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <svg class="h-6 w-6 animate-pulse-slow"
+                                         fill="none"
+                                         viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                    </svg>
+                                </button>
+                                <div x-show="open"
+                                     @click.away="open = false"
+                                     class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50">
+                                    <div class="py-1">
+                                        {% for theme_name in available_themes %}
+                                            <a href="{% url 'core:set_theme' theme_name %}"
+                                               class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                <span class="w-3 h-3 rounded-full mr-2 bg-{{ theme.primary }}-500"></span>
+                                                {{ theme_name|title }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <!-- Dark Mode Toggle -->
+                        <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                                class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg x-show="!darkMode"
+                                 class="h-6 w-6 animate-spin-slow"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                            <svg x-show="darkMode"
+                                 class="h-6 w-6 animate-spin-slow"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </button>
+                        <!-- Language Selector -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                    class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                                </svg>
+                            </button>
+                            <div x-show="open"
+                                 @click.away="open = false"
+                                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 z-50">
+                                <div class="py-1">
+                                    {% get_current_language as LANGUAGE_CODE %}
+                                    {% get_available_languages as LANGUAGES %}
+                                    {% for code, name in LANGUAGES %}
+                                        <form action="{% url 'set_language' %}" method="post" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.path }}" />
+                                            <input type="hidden" name="language" value="{{ code }}" />
+                                            <button type="submit"
+                                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 {% if LANGUAGE_CODE == code %}font-bold{% endif %}"
+                                                    onclick="setTimeout(function(){window.location.reload()}, 100)">
+                                                {{ name }}
+                                            </button>
+                                        </form>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Auth Links -->
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'core:logout' %}"
+                               class="px-4 py-2 rounded-full text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600 transition-colors duration-200">
+                                {% trans "Logout" %}
+                            </a>
+                        {% else %}
+                            <a href="{% url 'core:login' %}"
+                               class="px-4 py-2 rounded-full text-sm font-medium text-{{ theme.primary }}-600 hover:text-{{ theme.primary }}-700 dark:text-{{ theme.primary }}-400 dark:hover:text-{{ theme.primary }}-300 transition-colors duration-200">
+                                {% trans "Login" %}
+                            </a>
+                            <a href="{% url 'core:register' %}"
+                               class="px-4 py-2 rounded-full text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600 transition-colors duration-200">
+                                {% trans "Register" %}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div x-show="mobileMenu"
+                 class="lg:hidden"
+                 x-transition:enter="transition ease-out duration-100 transform"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-75 transform"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    <!-- Theme Selector -->
+                    <div class="px-3 py-2">
+                        <div class="flex flex-col space-y-2">
+                            {% for theme_name in available_themes %}
+                                <a href="{% url 'core:set_theme' theme_name %}"
+                                   class="flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md">
+                                    <span class="w-3 h-3 rounded-full mr-2 bg-{{ theme.primary }}-500"></span>
+                                    {{ theme_name|title }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Language Selector -->
+                    <div class="px-3 py-2">
+                        <div class="flex flex-col space-y-2">
+                            {% for code, name in LANGUAGES %}
+                                <form action="{% url 'set_language' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}" />
+                                    <input type="hidden" name="language" value="{{ code }}" />
+                                    <button type="submit"
+                                            class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md {% if LANGUAGE_CODE == code %}font-bold{% endif %}"
+                                            onclick="setTimeout(function(){window.location.reload()}, 100)">
+                                        {{ name }}
+                                    </button>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Auth Links -->
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'core:logout' %}"
+                           class="block px-3 py-2 rounded-md text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600">
+                            {% trans "Logout" %}
+                        </a>
+                    {% else %}
+                        <a href="{% url 'core:login' %}"
+                           class="block px-3 py-2 rounded-md text-sm font-medium text-{{ theme.primary }}-600 hover:text-{{ theme.primary }}-700 dark:text-{{ theme.primary }}-400 dark:hover:text-{{ theme.primary }}-300">
+                            {% trans "Login" %}
+                        </a>
+                        <a href="{% url 'core:register' %}"
+                           class="block px-3 py-2 rounded-md text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600">
+                            {% trans "Register" %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        <!-- Content -->
+        <main class="dark:text-gray-100">
+            {% if messages %}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                    {% for message in messages %}
+                        <div class="bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-900 border border-{{ message.tags }}-400 dark:border-{{ message.tags }}-600 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 px-4 py-3 rounded-lg relative"
+                             role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-gray-800 mt-12">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">© 2024 Consello. {% trans "All rights reserved." %}</p>
+            </div>
+        </footer>
+    </body>
+</html>
