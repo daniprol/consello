@@ -26,6 +26,13 @@
                 },
             };
         </script>
+        {% block extra_head %}
+            <!-- Add Tippy.js for tooltips -->
+            <script src="https://unpkg.com/@popperjs/core@2"></script>
+            <script src="https://unpkg.com/tippy.js@6"></script>
+            <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css" />
+            <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
+        {% endblock %}
     </head>
     <body class="bg-gray-50 dark:bg-gray-900 h-full">
         <!-- Navigation -->

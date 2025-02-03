@@ -1,0 +1,223 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% block title %}
+    {% trans "Chat" %}
+{% endblock %}
+{% block content %}
+    <div class="h-[calc(100vh-4rem)] bg-gray-50 dark:bg-gray-900 flex">
+        <!-- Sidebar -->
+        <div class="w-80 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col">
+            <!-- New Chat Button -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <a href="{% url 'core:chat' %}"
+                   class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700">
+                    <svg class="w-5 h-5 mr-2"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    {% trans "New Chat" %}
+                </a>
+            </div>
+            <!-- Conversation List -->
+            <div class="flex-1 overflow-y-auto p-2 space-y-2">
+                {% for conversation in conversations %}
+                    <a href="{% url 'core:chat' conversation.id %}"
+                       class="block p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 {% if conversation.id == current_conversation.id %}bg-gray-100 dark:bg-gray-700{% endif %}">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ conversation.title }}</h3>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ conversation.updated_at|date:"M d" }}</span>
+                        </div>
+                        {% if conversation.last_message %}
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">{{ conversation.last_message.content }}</p>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <div class="h-[calc(100vh-4rem)] bg-gray-50 dark:bg-gray-900 flex flex-col">
+                <!-- Chat Header -->
+                <div class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
+                    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span class="text-{{ theme.primary }}-600 dark:text-{{ theme.primary }}-400">{% trans "Consello" %}</span>
+                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">2.5-Max</span>
+                        </h1>
+                    </div>
+                </div>
+                <!-- Main Chat Area -->
+                <div class="flex-1 overflow-hidden">
+                    <div class="max-w-4xl mx-auto h-full flex flex-col">
+                        <!-- Quick Actions Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 p-4">
+                            {% for prompt in quick_prompts %}
+                                <button class="flex items-center gap-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-{{ theme.primary }}-500 dark:hover:border-{{ theme.primary }}-500 transition-colors"
+                                        onclick="insertPrompt('{{ prompt.text }}')">
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ prompt.title }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                        <!-- Chat Messages -->
+                        <div class="flex-1 overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-sm mx-4">
+                            <div id="chat-messages"
+                                 class="h-full overflow-y-auto p-4 space-y-4"
+                                 hx-ext="ws"
+                                 ws-connect="/ws/chat/">
+                                <!-- Welcome Message -->
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="h-8 w-8 rounded-full bg-{{ theme.primary }}-500 flex items-center justify-center">
+                                            <span class="text-white font-medium">C</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-4 max-w-3xl">
+                                        <p class="text-gray-900 dark:text-white">
+                                            {% trans "Hello! I'm Consello, your Galician tourism assistant. How can I help you today?" %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Input Area -->
+                        <div class="p-4">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                                <div class="p-2 border-b border-gray-200 dark:border-gray-700 flex gap-2">
+                                    <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 tooltip"
+                                            title="{% trans 'Press Enter to send' %}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 tooltip"
+                                            title="{% trans 'Press Ctrl+Enter for new line' %}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a4 4 0 0 1 4 4v6m-4-6v6m4-6h4"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <form hx-on:submit="this.reset()"
+                                      ws-send
+                                      class="flex items-end p-2 gap-2"
+                                      id="chat-form">
+                                    <div class="flex-1 min-h-[44px]">
+                                        <textarea id="chat-input"
+                                                  name="message"
+                                                  rows="1"
+                                                  class="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-{{ theme.primary }}-500 focus:ring-{{ theme.primary }}-500 dark:bg-gray-700 dark:text-white resize-none px-3 py-2"
+                                                  placeholder="{% trans 'Ask me about Galicia...' %}"></textarea>
+                                    </div>
+                                    <button type="submit"
+                                            class="inline-flex items-center p-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-{{ theme.primary }}-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Message Templates -->
+    <template id="assistant-message-template">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <div class="h-8 w-8 rounded-full bg-{{ theme.primary }}-500 flex items-center justify-center">
+                    <span class="text-white font-medium">C</span>
+                </div>
+            </div>
+            <div class="ml-3 bg-gray-100 dark:bg-gray-700 rounded-lg p-4 max-w-3xl">
+                <p class="text-gray-900 dark:text-white message-content"></p>
+            </div>
+        </div>
+    </template>
+    <template id="user-message-template">
+        <div class="flex items-start justify-end">
+            <div class="mr-3 bg-{{ theme.primary }}-100 dark:bg-{{ theme.primary }}-900 rounded-lg p-4 max-w-3xl">
+                <p class="text-gray-900 dark:text-white message-content"></p>
+            </div>
+            <div class="flex-shrink-0">
+                <div class="h-8 w-8 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center">
+                    <span class="text-white font-medium">U</span>
+                </div>
+            </div>
+        </div>
+    </template>
+{% endblock %}
+{% block extra_js %}
+    <script>
+// Handle WebSocket messages
+document.body.addEventListener('htmx:wsAfterMessage', function(event) {
+    const data = JSON.parse(event.detail.message);
+    
+    // Get the appropriate template
+    const templateId = data.role === 'assistant' ? 'assistant-message-template' : 'user-message-template';
+    const template = document.getElementById(templateId);
+    
+    // Clone the template
+    const messageElement = template.content.cloneNode(true);
+    
+    // Set the message content
+    messageElement.querySelector('.message-content').textContent = data.content;
+    
+    // Add to chat
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.appendChild(messageElement);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// Handle textarea input and keyboard events
+const textarea = document.getElementById('chat-input');
+const form = document.getElementById('chat-form');
+
+textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+});
+
+textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        if (e.ctrlKey) {
+            // Insert new line
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            const value = this.value;
+            this.value = value.substring(0, start) + '\n' + value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 1;
+            e.preventDefault();
+        } else {
+            // Submit form if there's content and it's not just whitespace
+            if (this.value.trim()) {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        }
+    }
+});
+
+// Function to insert prompt text into input
+function insertPrompt(text) {
+    const textarea = document.getElementById('chat-input');
+    textarea.value = text;
+    textarea.focus();
+    // Trigger height adjustment
+    textarea.dispatchEvent(new Event('input'));
+}
+
+// Initialize tooltips
+document.querySelectorAll('.tooltip').forEach(element => {
+    tippy(element, {
+        placement: 'top',
+        arrow: true,
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    });
+});
+    </script>
+{% endblock %}
