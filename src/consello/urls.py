@@ -25,6 +25,7 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path("admin/", admin.site.urls),
+    path("chat/", include("chat.urls")),
     path("", include("core.urls")),
     path("social-auth/", include("social_django.urls", namespace="social")),
     prefix_default_language=False,

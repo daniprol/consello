@@ -1,15 +1,12 @@
 {% extends "core/base.html" %}
 {% load i18n %}
-{% block title %}
-    {% trans "Chat" %}
-{% endblock %}
 {% block content %}
     <div class="flex h-[calc(100vh-4rem)]">
         <!-- Sidebar -->
         <div class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
             <!-- New Chat Button -->
             <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-                <button hx-get="{% url 'core:chat' %}"
+                <button hx-post="{% url 'chat:new_chat' %}"
                         hx-target="#chat-container"
                         hx-swap="innerHTML"
                         class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-{{ theme.primary }}-500">
@@ -26,7 +23,7 @@
             <!-- Conversations List -->
             <div class="flex-1 overflow-y-auto p-4 space-y-2">
                 {% for conversation in conversations %}
-                    <button hx-get="{% url 'core:chat_detail' conversation.id %}"
+                    <button hx-get="{% url 'chat:chat_detail' conversation.id %}"
                             hx-target="#chat-container"
                             hx-swap="innerHTML"
                             class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 {% if conversation.id == current_conversation.id %}bg-gray-100 dark:bg-gray-700{% endif %}">
@@ -56,7 +53,7 @@
                 </div>
                 <!-- Input Form -->
                 <div class="border-t border-gray-200 dark:border-gray-700 p-4">
-                    <form hx-post="{% url 'core:chat_message' current_conversation.id %}"
+                    <form hx-post="{% url 'chat:chat_message' current_conversation.id %}"
                           hx-target="#chat-container"
                           hx-swap="innerHTML"
                           class="flex space-x-4">
@@ -96,51 +93,4 @@
             {% endif %}
         </div>
     </div>
-{% endblock %}
-{% block extra_js %}
-    <script>
-const chatSocket = new WebSocket(
-    'ws://' + window.location.host + '/ws/chat/{{ current_conversation.id }}/'
-);
-
-chatSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    const messagesContainer = document.querySelector('#chat-messages');
-    
-    // Create message element
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `flex ${data.role === 'user' ? 'justify-end' : ''}`;
-    
-    const innerDiv = document.createElement('div');
-    innerDiv.className = `max-w-2xl rounded-lg p-4 ${
-        data.role === 'user' 
-            ? 'bg-{{ theme.primary }}-100 dark:bg-{{ theme.primary }}-900' 
-            : 'bg-white dark:bg-gray-800'
-    }`;
-    
-    innerDiv.textContent = data.content;
-    messageDiv.appendChild(innerDiv);
-    messagesContainer.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-};
-
-chatSocket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly');
-};
-
-document.querySelector('#chat-form').onsubmit = function(e) {
-    e.preventDefault();
-    const messageInput = document.querySelector('#chat-input');
-    const message = messageInput.value;
-    
-    if (message.trim()) {
-        chatSocket.send(JSON.stringify({
-            'content': message
-        }));
-        messageInput.value = '';
-    }
-};
-    </script>
 {% endblock %}

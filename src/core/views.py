@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -5,14 +6,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 
+from chat.models import Conversation, Message
+
 from .forms import CustomUserCreationForm, UserSettingsForm
-from .models import Conversation
 from .tokens import account_activation_token
 
 
@@ -93,70 +96,90 @@ def set_theme(request, theme_name):
 
 
 @login_required
-def chat_view(request, conversation_id=None):
+async def chat_view(request, conversation_id=None):
+    conversations = (
+        await Conversation.objects.filter(user=request.user)
+        .order_by("-updated_at")
+        .all()
+    )
+    current_conversation = None
+
     if conversation_id:
-        conversation = get_object_or_404(
-            Conversation, id=conversation_id, user=request.user
-        )
-    else:
-        # Create new conversation
-        conversation = Conversation.objects.create(
-            user=request.user, title=_("New Conversation")
+        current_conversation = await get_object_or_404(
+            Conversation.objects.prefetch_related("messages"),
+            id=conversation_id,
+            user=request.user,
         )
 
-    conversations = Conversation.objects.filter(user=request.user)
+    return render(
+        request,
+        "core/chat.html",
+        {
+            "conversations": conversations,
+            "current_conversation": current_conversation,
+        },
+    )
 
-    quick_prompts = [
-        {
-            "title": _("Cultural Routes"),
-            "description": _("Discover the best cultural routes in Galicia"),
-            "text": _(
-                "What are the most interesting cultural routes to explore in Galicia?"
-            ),
-        },
-        {
-            "title": _("Local Festivals"),
-            "description": _("Find information about traditional festivals"),
-            "text": _(
-                "What are the main traditional festivals in Galicia and when do they take place?"
-            ),
-        },
-        {
-            "title": _("Gastronomy Guide"),
-            "description": _("Learn about Galician cuisine"),
-            "text": _(
-                "What are the must-try traditional Galician dishes and where can I find them?"
-            ),
-        },
-        {
-            "title": _("Hidden Gems"),
-            "description": _("Discover lesser-known places"),
-            "text": _(
-                "What are some hidden gems or off-the-beaten-path places to visit in Galicia?"
-            ),
-        },
-        {
-            "title": _("Coastal Experience"),
-            "description": _("Explore the Galician coast"),
-            "text": _(
-                "What are the most beautiful beaches and coastal towns to visit in Galicia?"
-            ),
-        },
-        {
-            "title": _("Historical Sites"),
-            "description": _("Visit historical landmarks"),
-            "text": _(
-                "What are the most important historical sites and monuments in Galicia?"
-            ),
-        },
-    ]
 
-    context = {
-        "quick_prompts": quick_prompts,
-        "conversations": conversations,
-        "current_conversation": conversation,
-    }
-    return render(request, "core/chat.html", context)
+@login_required
+async def chat_message(request, conversation_id):
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    conversation = await get_object_or_404(
+        Conversation.objects.prefetch_related("messages"),
+        id=conversation_id,
+        user=request.user,
+    )
+
+    # Create user message
+    content = request.POST.get("content")
+    await Message.objects.create(
+        conversation=conversation, role="user", content=content
+    )
+
+    # Create AI response (dummy for now)
+    response = "This is a sample response to: " + content
+    await Message.objects.create(
+        conversation=conversation, role="assistant", content=response
+    )
+
+    # Update conversation timestamp
+    conversation.save()
+
+    return render(
+        request,
+        "core/chat.html",
+        {
+            "conversations": await Conversation.objects.filter(user=request.user)
+            .order_by("-updated_at")
+            .all(),
+            "current_conversation": conversation,
+        },
+    )
+
+
+@login_required
+async def new_chat(request):
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    # Create new conversation
+    conversation = await Conversation.objects.create(
+        user=request.user,
+        title="New Chat",  # You might want to generate a better title
+    )
+
+    return render(
+        request,
+        "core/chat.html",
+        {
+            "conversations": await Conversation.objects.filter(user=request.user)
+            .order_by("-updated_at")
+            .all(),
+            "current_conversation": conversation,
+        },
+    )
 
 
 @login_required

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load avatar_tags %}
+{% load core_tags %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}"
       class="h-full"
@@ -165,7 +166,7 @@
                                             aria-label="User menu"
                                             aria-haspopup="true">
                                         <div class="flex items-center space-x-2">
-                                            {% avatar user 32 class="h-8 w-8 rounded-full object-cover bg-gray-200" default="identicon" %}
+                                            {% async_avatar user 32 %}
                                             <svg class="h-4 w-4 text-gray-500"
                                                  xmlns="http://www.w3.org/2000/svg"
                                                  viewBox="0 0 20 20"

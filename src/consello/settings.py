@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     "rest_framework",
     "channels",
     "avatar",
+    "guardian",
     "core.apps.CoreConfig",
+    "chat.apps.ChatConfig",
+    "core.templatetags",
 ]
 
 MIDDLEWARE = [
@@ -154,6 +157,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "social_core.backends.google.GoogleOAuth2",
     "social_core.backends.azuread.AzureADOAuth2",
+    "guardian.backends.ObjectPermissionBackend",
 ]
 
 # Social auth settings
@@ -236,3 +240,20 @@ AVATAR_PROVIDERS = (
 )
 AVATAR_STORAGE_DIR = "avatars"
 AVATAR_CLEANUP_DELETED = True
+
+# Guardian settings
+GUARDIAN_RAISE_403 = True
+
+# Channels settings
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        if DEBUG
+        else "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {}
+        if DEBUG
+        else {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
