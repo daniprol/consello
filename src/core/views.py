@@ -11,7 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext as _
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, UserSettingsForm
 from .models import Conversation
 from .tokens import account_activation_token
 
@@ -157,3 +157,17 @@ def chat_view(request, conversation_id=None):
         "current_conversation": conversation,
     }
     return render(request, "core/chat.html", context)
+
+
+@login_required
+def settings_view(request):
+    if request.method == "POST":
+        form = UserSettingsForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Your profile has been updated."))
+            return redirect("core:settings")
+    else:
+        form = UserSettingsForm(instance=request.user)
+
+    return render(request, "core/settings.html", {"form": form})

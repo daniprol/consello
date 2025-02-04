@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load avatar_tags %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}"
       class="h-full"
@@ -149,22 +150,52 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Auth Links -->
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'core:logout' %}"
-                               class="px-4 py-2 rounded-full text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600 transition-colors duration-200">
-                                {% trans "Logout" %}
-                            </a>
-                        {% else %}
-                            <a href="{% url 'core:login' %}"
-                               class="px-4 py-2 rounded-full text-sm font-medium text-{{ theme.primary }}-600 hover:text-{{ theme.primary }}-700 dark:text-{{ theme.primary }}-400 dark:hover:text-{{ theme.primary }}-300 transition-colors duration-200">
-                                {% trans "Login" %}
-                            </a>
-                            <a href="{% url 'core:register' %}"
-                               class="px-4 py-2 rounded-full text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 dark:bg-{{ theme.primary }}-500 dark:hover:bg-{{ theme.primary }}-600 transition-colors duration-200">
-                                {% trans "Register" %}
-                            </a>
-                        {% endif %}
+                        <!-- User Menu -->
+                        <div class="ml-3 relative" x-data="{ open: false }">
+                            {% if user.is_authenticated %}
+                                <div>
+                                    <button @click="open = !open"
+                                            class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-{{ theme.primary }}-500 transition duration-150 ease-in-out"
+                                            id="user-menu"
+                                            aria-label="User menu"
+                                            aria-haspopup="true">
+                                        {% avatar user 32 class="h-8 w-8 rounded-full object-cover" %}
+                                    </button>
+                                </div>
+                                <div x-show="open"
+                                     @click.away="open = false"
+                                     x-transition:enter="transition ease-out duration-100"
+                                     x-transition:enter-start="transform opacity-0 scale-95"
+                                     x-transition:enter-end="transform opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="transform opacity-100 scale-100"
+                                     x-transition:leave-end="transform opacity-0 scale-95"
+                                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
+                                    <div class="rounded-md bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                                        <div class="py-1"
+                                             role="menu"
+                                             aria-orientation="vertical"
+                                             aria-labelledby="user-menu">
+                                            <div class="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
+                                                <p class="font-medium">{{ user.get_full_name|default:user.username }}</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ user.email }}</p>
+                                            </div>
+                                            <a href="{% url 'core:settings' %}"
+                                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                               role="menuitem">{% trans "Settings" %}</a>
+                                            <a href="{% url 'core:logout' %}"
+                                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                               role="menuitem">{% trans "Sign out" %}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <a href="{% url 'core:login' %}"
+                                   class="text-gray-700 dark:text-gray-200 hover:text-{{ theme.primary }}-500 dark:hover:text-{{ theme.primary }}-400">
+                                    {% trans "Sign in" %}
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

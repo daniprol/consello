@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+{% load avatar_tags %}
+{% block content %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <div class="space-y-8">
+                <!-- Avatar Section -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">{% trans "Profile Picture" %}</h3>
+                    <div class="mt-4 flex items-center space-x-4">
+                        {% avatar user 100 %}
+                        <div>
+                            <form method="post"
+                                  action="{% url 'avatar_change' %}"
+                                  enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file"
+                                       name="avatar"
+                                       accept="image/*"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-{{ theme.primary }}-50 file:text-{{ theme.primary }}-700 hover:file:bg-{{ theme.primary }}-100" />
+                                <button type="submit"
+                                        class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700">
+                                    {% trans "Upload New Avatar" %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Profile Settings Form -->
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-{{ theme.primary }}-600 hover:bg-{{ theme.primary }}-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-{{ theme.primary }}-500">
+                        {% trans "Save Changes" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

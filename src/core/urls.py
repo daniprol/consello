@@ -18,4 +18,6 @@ urlpatterns = [
     path("chat/", views.chat_view, name="chat"),
     path("chat/<int:conversation_id>/", views.chat_view, name="chat_detail"),
     path("api/", include(router.urls)),
+    path("settings/", views.settings_view, name="settings"),
+    path("avatar/", include("avatar.urls")),
 ]

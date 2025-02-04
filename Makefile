@@ -26,9 +26,15 @@ dev:
 	DJANGO_SETTINGS_MODULE=$(DEV_SETTINGS) $(MANAGE) runserver
 
 migrations:
+	$(MANAGE) makemigrations core
 	$(MANAGE) makemigrations
 
 migrate:
+	$(MANAGE) migrate auth
+	$(MANAGE) migrate contenttypes
+	$(MANAGE) migrate admin
+	$(MANAGE) migrate sessions
+	$(MANAGE) migrate core
 	$(MANAGE) migrate
 
 translations:

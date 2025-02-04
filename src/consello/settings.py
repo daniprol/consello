@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "social_django",
     "rest_framework",
     "channels",
+    "avatar",
     "core.apps.CoreConfig",
 ]
 
@@ -201,3 +202,36 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
 SOCIAL_AUTH_AZUREAD_OAUTH2_USE_UNIQUE_USER_ID = True
+
+# User Model
+AUTH_USER_MODEL = "core.User"
+
+# Media files (uploads)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
+CONTENT_TYPES = ["image/jpeg", "image/png", "image/gif"]
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
+
+# For production, use Azure Blob Storage
+if not DEBUG:
+    # Azure Storage Settings
+    AZURE_ACCOUNT_NAME = os.environ.get("AZURE_ACCOUNT_NAME")
+    AZURE_ACCOUNT_KEY = os.environ.get("AZURE_ACCOUNT_KEY")
+    AZURE_CONTAINER = os.environ.get("AZURE_CONTAINER", "media")
+    AZURE_SSL = True
+    DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
+
+# Django-avatar settings
+AVATAR_GRAVATAR_DEFAULT = "retro"  # Default Gravatar style
+AVATAR_MAX_SIZE = 1024 * 1024  # 1MB
+AVATAR_THUMB_FORMAT = "PNG"
+AVATAR_PROVIDERS = (
+    "avatar.providers.PrimaryAvatarProvider",
+    "avatar.providers.GravatarAvatarProvider",
+    "avatar.providers.DefaultAvatarProvider",
+)
+AVATAR_STORAGE_DIR = "avatars"
+AVATAR_CLEANUP_DELETED = True
