@@ -34,6 +34,8 @@
             <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css" />
             <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
         {% endblock %}
+        <!-- Add Heroicons for the icons -->
+        <script src="https://unpkg.com/@heroicons/v1/outline/esm/index.js"></script>
     </head>
     <body class="bg-gray-50 dark:bg-gray-900 h-full">
         <!-- Navigation -->
@@ -151,15 +153,26 @@
                             </div>
                         </div>
                         <!-- User Menu -->
-                        <div class="ml-3 relative" x-data="{ open: false }">
+                        <div class="ml-3 relative flex items-center" x-data="{ open: false }">
                             {% if user.is_authenticated %}
-                                <div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                        {{ user.get_full_name|default:user.username }}
+                                    </span>
                                     <button @click="open = !open"
-                                            class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-{{ theme.primary }}-500 transition duration-150 ease-in-out"
+                                            class="flex items-center space-x-2 text-sm border-2 border-transparent rounded-lg p-1 focus:outline-none focus:border-{{ theme.primary }}-500 transition duration-150 ease-in-out"
                                             id="user-menu"
                                             aria-label="User menu"
                                             aria-haspopup="true">
-                                        {% avatar user 32 class="h-8 w-8 rounded-full object-cover" %}
+                                        <div class="flex items-center space-x-2">
+                                            {% avatar user 32 class="h-8 w-8 rounded-full object-cover bg-gray-200" default="identicon" %}
+                                            <svg class="h-4 w-4 text-gray-500"
+                                                 xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 20 20"
+                                                 fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </button>
                                 </div>
                                 <div x-show="open"
@@ -170,7 +183,7 @@
                                      x-transition:leave="transition ease-in duration-75"
                                      x-transition:leave-start="transform opacity-100 scale-100"
                                      x-transition:leave-end="transform opacity-0 scale-95"
-                                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
+                                     class="origin-top-right absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg z-50">
                                     <div class="rounded-md bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                                         <div class="py-1"
                                              role="menu"
@@ -181,11 +194,30 @@
                                                 <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ user.email }}</p>
                                             </div>
                                             <a href="{% url 'core:settings' %}"
-                                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                               role="menuitem">{% trans "Settings" %}</a>
+                                               class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                               role="menuitem">
+                                                <svg class="h-5 w-5"
+                                                     xmlns="http://www.w3.org/2000/svg"
+                                                     fill="none"
+                                                     viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <span>{% trans "Settings" %}</span>
+                                            </a>
                                             <a href="{% url 'core:logout' %}"
-                                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                               role="menuitem">{% trans "Sign out" %}</a>
+                                               class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                               role="menuitem">
+                                                <svg class="h-5 w-5"
+                                                     xmlns="http://www.w3.org/2000/svg"
+                                                     fill="none"
+                                                     viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                </svg>
+                                                <span>{% trans "Sign out" %}</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

@@ -228,6 +228,7 @@ if not DEBUG:
 AVATAR_GRAVATAR_DEFAULT = "retro"  # Default Gravatar style
 AVATAR_MAX_SIZE = 1024 * 1024  # 1MB
 AVATAR_THUMB_FORMAT = "PNG"
+AVATAR_DEFAULT_URL = "https://ui-avatars.com/api/?background=random&name=%(username)s"
 AVATAR_PROVIDERS = (
     "avatar.providers.PrimaryAvatarProvider",
     "avatar.providers.GravatarAvatarProvider",
